@@ -22,7 +22,9 @@ app.get("/health", (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Access the API at http://localhost:${PORT}`);
-  console.log(`Access the API from network devices at http://YOUR_NETWORK_IP:${PORT}`);
+  console.log(
+    `Access the API from network devices at http://YOUR_NETWORK_IP:${PORT}`
+  );
   console.log(`Health check endpoint: http://localhost:${PORT}/health`);
 });
 

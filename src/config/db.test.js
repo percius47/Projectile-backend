@@ -395,7 +395,7 @@ const mockDb = {
       }, 10);
     });
   },
-  
+
   // Add reset function to fix test issues
   reset: () => {
     users = [];
@@ -404,7 +404,7 @@ const mockDb = {
     rfqs = [];
     quotes = [];
     idCounter = 1;
-  }
+  },
 };
 
 module.exports = mockDb;

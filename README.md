@@ -53,6 +53,7 @@ src/
 1. Create a new Web Service on Render
 2. Connect your GitHub repository
 3. Configure the following settings:
+
    - Build Command: `npm install`
    - Start Command: `npm start`
    - Environment Variables (set in Render dashboard):

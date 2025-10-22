@@ -11,7 +11,7 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     // List of allowed origins
     const allowedOrigins = [
       "http://localhost:3000",
@@ -21,7 +21,7 @@ const corsOptions = {
       // Add your production frontend URL here
       process.env.FRONTEND_URL, // For Render deployment
     ];
-    
+
     // Check if the origin is in our allowed list or if it's undefined
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
@@ -30,7 +30,7 @@ const corsOptions = {
     }
   },
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-migrate-secret"],
   methods: ["GET", "POST", "PUT", "DELETE"],
 };
 
@@ -66,8 +66,44 @@ app.use("/api/documents", documentRoutes);
 // Serve static files (for uploaded documents)
 app.use("/uploads", express.static("src/uploads"));
 
+// Migration endpoint for free Render instances
+app.post("/api/run-migrations", async (req, res) => {
+  try {
+    // Simple protection - check for a secret in headers
+    const migrateSecret = req.headers["x-migrate-secret"];
+    if (
+      process.env.NODE_ENV === "production" &&
+      migrateSecret !== process.env.MIGRATE_SECRET
+    ) {
+      return res.status(403).json({
+        message: "Forbidden - Invalid or missing migration secret",
+      });
+    }
+
+    // Run migrations
+    const { runMigrations } = require("./migrations/run-migrations");
+    await runMigrations();
+
+    res.json({
+      message: "Database migrations completed successfully!",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Migration error:", error);
+    res.status(500).json({
+      message: "Migration failed",
+      error: error.message,
+    });
+  }
+});
+
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Projectile API" });
+});
+
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
 // Error handling middleware
